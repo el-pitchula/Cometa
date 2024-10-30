@@ -1,68 +1,129 @@
 import tkinter as tk
-from tkinter import filedialog, messagebox
-from tkinter import ttk
+from tkinter import ttk, filedialog, messagebox
 from PIL import Image, ImageTk
-from image_loader import load_and_display_image
-from image_processing import process_image
+import cv2
+import numpy as np
 
 class ImageProcessingApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Processamento de Imagens Astronômicas")
-        self.image_label = tk.Label(root, text="Nenhuma imagem carregada")
-        self.image_label.pack(pady=10)
+        self.root.title("Image Processing with AI and Filters")
+        self.root.state("zoomed")  # Abre a janela maximizada em tela cheia
+        
+        # Configura o estilo
+        style = ttk.Style()
+        style.theme_use("clam")
+        style.configure("TFrame", background="#2e2e2e")
+        style.configure("TButton", background="#4e4e4e", foreground="white", font=("Helvetica", 12, "bold"))
+        style.configure("TLabel", background="#2e2e2e", foreground="white", font=("Helvetica", 12))
+        
+        # Frame principal para divisão das áreas
+        main_frame = ttk.Frame(self.root)
+        main_frame.pack(fill="both", expand=True)
 
+        # Painel esquerdo para controles e ajustes
+        control_panel = ttk.Frame(main_frame, width=250, relief="sunken", padding=10)
+        control_panel.pack(side="left", fill="y")
+        
+        # Área central para exibição das imagens
+        display_panel = ttk.Frame(main_frame, padding=10)
+        display_panel.pack(side="left", fill="both", expand=True)
+
+        # Barra de status
+        self.status_label = ttk.Label(self.root, text="Welcome to Image Processing App", anchor="w")
+        self.status_label.pack(side="bottom", fill="x")
+
+        # Controles no Painel de Controle
+        ttk.Label(control_panel, text="Image Processing Options").pack(pady=5)
+        
+        load_button = ttk.Button(control_panel, text="Load Image", command=self.load_image)
+        load_button.pack(fill="x", pady=5)
+        
+        filter_button = ttk.Button(control_panel, text="Apply Butterworth Filter", command=self.apply_butterworth_filter)
+        filter_button.pack(fill="x", pady=5)
+        
+        ai_button = ttk.Button(control_panel, text="Run AI Model", command=self.run_ai_model)
+        ai_button.pack(fill="x", pady=5)
+        
+        # Slider para ajuste de parâmetros de filtro
+        ttk.Label(control_panel, text="Filter Frequency Cutoff").pack(pady=5)
+        self.cutoff_slider = ttk.Scale(control_panel, from_=1, to=100, orient="horizontal")
+        self.cutoff_slider.set(50)
+        self.cutoff_slider.pack(fill="x", pady=5)
+
+        # Configuração de Exibição de Imagem
+        self.original_label = ttk.Label(display_panel, text="Original Image")
+        self.original_label.pack(pady=5)
+        
+        self.processed_label = ttk.Label(display_panel, text="Processed Image")
+        self.processed_label.pack(pady=5)
+
+        self.original_canvas = tk.Canvas(display_panel, width=400, height=400, bg="gray")
+        self.original_canvas.pack(side="left", fill="both", expand=True, padx=5, pady=5)
+        
+        self.processed_canvas = tk.Canvas(display_panel, width=400, height=400, bg="gray")
+        self.processed_canvas.pack(side="left", fill="both", expand=True, padx=5, pady=5)
+
+        # Inicializa as variáveis
         self.original_image = None
-        self.filtered_image = None
-
-        self.btn_load = tk.Button(root, text="Carregar Imagem", command=self.load_image)
-        self.btn_load.pack(pady=5)
-
-        self.filter_var = tk.StringVar(value="Gaussian")
-        self.filter_options = ttk.Combobox(root, textvariable=self.filter_var, values=["Gaussian", "Mediana", "Fourier"])
-        self.filter_options.pack(pady=5)
-
-        self.btn_apply_filter = tk.Button(root, text="Aplicar Filtro", command=self.apply_filter)
-        self.btn_apply_filter.pack(pady=5)
-
-        self.btn_save = tk.Button(root, text="Salvar Imagem Filtrada", command=self.save_image)
-        self.btn_save.pack(pady=5)
+        self.processed_image = None
 
     def load_image(self):
-        file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg;*.jpeg;*.png")])
-        if file_path:
-            self.original_image = load_and_display_image(file_path)
-            self.display_image(self.original_image, "Imagem Original")
-            self.filtered_image = None
+        image_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg *.png *.jpeg")])
+        if image_path:
+            self.original_image = Image.open(image_path)
+            self.display_image(self.original_image, self.original_canvas)
+            self.status_label.config(text="Image loaded successfully")
 
-    def apply_filter(self):
+    def apply_butterworth_filter(self):
         if self.original_image is None:
-            messagebox.showwarning("Aviso", "Nenhuma imagem carregada!")
+            messagebox.showerror("Error", "Please load an image first.")
             return
 
-        filter_type = self.filter_var.get()
-        self.filtered_image = process_image(self.original_image, filter_type)
-        self.display_image(self.filtered_image, f"Imagem Filtrada ({filter_type})")
+        # Aplica o filtro Butterworth
+        self.processed_image = self.butterworth_filter(self.original_image, cutoff=self.cutoff_slider.get())
+        self.display_image(self.processed_image, self.processed_canvas)
+        self.status_label.config(text="Butterworth filter applied")
 
-    def display_image(self, img_array, title):
-        img = Image.fromarray(img_array)
-        img = img.resize((400, 300), Image.ANTIALIAS)
-        img_tk = ImageTk.PhotoImage(img)
-        self.image_label.config(image=img_tk)
-        self.image_label.image = img_tk
-        self.image_label.config(text=title)
+    def butterworth_filter(self, image, cutoff):
+        # Convertendo a imagem para escala de cinza
+        img_gray = np.array(image.convert("L"))
+        
+        # Transformada de Fourier
+        f_transform = np.fft.fftshift(np.fft.fft2(img_gray))
+        rows, cols = img_gray.shape
+        crow, ccol = rows // 2, cols // 2
 
-    def save_image(self):
-        if self.filtered_image is None:
-            messagebox.showwarning("Aviso", "Aplique um filtro antes de salvar!")
+        # Filtro Butterworth
+        mask = np.zeros((rows, cols), dtype=np.float32)
+        for i in range(rows):
+            for j in range(cols):
+                d = np.sqrt((i - crow) ** 2 + (j - ccol) ** 2)
+                mask[i, j] = 1 / (1 + (d / cutoff) ** (2 * 2))
+
+        filtered_shifted = f_transform * mask
+        f_ishift = np.fft.ifftshift(filtered_shifted)
+        img_back = np.abs(np.fft.ifft2(f_ishift))
+        filtered_image = Image.fromarray(np.uint8(img_back)).convert("RGB")
+        
+        return filtered_image
+
+    def run_ai_model(self):
+        if self.original_image is None:
+            messagebox.showerror("Error", "Please load an image first.")
             return
+        
+        # Placeholder para execução de modelo de IA
+        self.status_label.config(text="Running AI model...")
+        self.processed_image = self.original_image  # Substitua pela saída real do modelo de IA
+        self.display_image(self.processed_image, self.processed_canvas)
+        self.status_label.config(text="AI model executed")
 
-        file_path = filedialog.asksaveasfilename(defaultextension=".jpg",
-                                                 filetypes=[("JPEG", "*.jpg"), ("PNG", "*.png")])
-        if file_path:
-            cv2.imwrite(file_path, cv2.cvtColor(self.filtered_image, cv2.COLOR_RGB2BGR))
-            messagebox.showinfo("Informação", "Imagem salva com sucesso!")
+    def display_image(self, image, canvas):
+        canvas.image = ImageTk.PhotoImage(image.resize((400, 400)))
+        canvas.create_image(0, 0, anchor="nw", image=canvas.image)
 
+# Cria a janela principal e inicializa a aplicação
 if __name__ == "__main__":
     root = tk.Tk()
     app = ImageProcessingApp(root)
