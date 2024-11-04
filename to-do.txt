@@ -13,7 +13,8 @@
 
 links:
 - https://www.youtube.com/watch?v=HJ-C4Incgpw&ab_channel=CurioRes
-- 
+- https://en.wikipedia.org/wiki/Cutoff_frequency
+- https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html
 
 Funcionamento geral
 	- manualmente:
