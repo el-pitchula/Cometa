@@ -1,0 +1,79 @@
+@startuml
+
+package "Interface Principal" {
+    class ImageProcessingApp {
+        - root : tk.Tk
+        - main_frame : ttk.Frame
+        - control_panel : ttk.Frame
+        - display_panel : ttk.Frame
+        - status_label : ttk.Label
+        - cutoff_slider : ttk.Scale
+        - original_canvas : tk.Canvas
+        - processed_canvas : tk.Canvas
+        - original_image : Image
+        - processed_image : Image
+
+        + __init__(root: tk.Tk)
+        + load_image() : void
+        + apply_butterworth_filter() : void
+        + butterworth_filter(image: Image, cutoff: float) : Image
+        + run_ai_model() : void
+        + display_image(image: Image, canvas: tk.Canvas) : void
+    }
+}
+
+package "Painel de Controle" {
+    class ControlPanel {
+        + load_button : ttk.Button
+        + filter_button : ttk.Button
+        + ai_button : ttk.Button
+        + cutoff_slider : ttk.Scale
+        + initialize_controls() : void
+    }
+
+    ImageProcessingApp "1" -down-> "1" ControlPanel : contém
+}
+
+package "Área de Exibição" {
+    class DisplayPanel {
+        + original_canvas : tk.Canvas
+        + processed_canvas : tk.Canvas
+        + display_original_image(image: Image) : void
+        + display_processed_image(image: Image) : void
+    }
+
+    ImageProcessingApp "1" -down-> "1" DisplayPanel : contém
+}
+
+package "Funcionalidades" {
+    class ButterworthFilter {
+        + apply(image: Image, cutoff: float) : Image
+    }
+
+    class AIModel {
+        + process(image: Image) : Image
+    }
+
+    ImageProcessingApp "1" -down-> "1" ButterworthFilter : usa
+    ImageProcessingApp "1" -down-> "1" AIModel : usa
+}
+
+' Interações com o usuário
+User --> ImageProcessingApp : Inicia Aplicação
+User --> ControlPanel : Load Image
+ControlPanel --> ImageProcessingApp : Chama load_image()
+ImageProcessingApp --> DisplayPanel : Exibe imagem carregada
+
+User --> ControlPanel : Apply Butterworth Filter
+ControlPanel --> ImageProcessingApp : Chama apply_butterworth_filter()
+ImageProcessingApp --> ButterworthFilter : Aplica filtro
+ButterworthFilter --> ImageProcessingApp : Retorna imagem filtrada
+ImageProcessingApp --> DisplayPanel : Exibe imagem filtrada
+
+User --> ControlPanel : Run AI Model
+ControlPanel --> ImageProcessingApp : Chama run_ai_model()
+ImageProcessingApp --> AIModel : Executa IA na imagem
+AIModel --> ImageProcessingApp : Retorna imagem processada
+ImageProcessingApp --> DisplayPanel : Exibe imagem da IA
+
+@enduml

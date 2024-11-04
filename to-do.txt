@@ -7,4 +7,22 @@
 - fazer def mat
 - funcionamento de IA num geral
 - software e interface
+- pesquisar sobre filter frequency cutoff (fc) e a influencia em sistemas de controle
+- pesquisar pelo funcionamento separado de cada funcionalidade e biblioteca
+- pesquisar o resultado esperado por imagem
+
+links:
+- https://www.youtube.com/watch?v=HJ-C4Incgpw&ab_channel=CurioRes
 - 
+
+Funcionamento geral
+	- manualmente:
+- apuração da imagem pela aplicação do filtro butter
+- ajuste pela frequencia de corte (usar animação de demonstração)
+
+	- IA:
+- identificação de objetos espacias
+- como? pela posição? cor? qual o padrão? ele precisa ter conhecimentos astronomicos para deduzir?
+
+objetivo é ajudar na análise de observação astronômica amadora
+- melhorar imagens e identificar objetos espaciais 
