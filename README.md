@@ -5,6 +5,6 @@ Is a Python-based application that utilizes advanced mathematical filters and ar
 
 ## How to use:
 - pip install -r requirements.txt
-- python src/interface.py
+- python src/inteacrfe.py
 
 add fts, gifs, e explicações em documents .md alem da própria monografia
