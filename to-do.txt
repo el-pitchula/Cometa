@@ -29,6 +29,7 @@ objetivo é ajudar na análise de observação astronômica amadora
 - melhorar imagens e identificar objetos espaciais 
 
 compreensão do código:
+- cada parte do código por inteiro
 - filtros em específico
 - modelo IA
 - estrutura da interface
