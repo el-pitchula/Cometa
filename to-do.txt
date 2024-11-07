@@ -27,3 +27,8 @@ Funcionamento geral
 
 objetivo é ajudar na análise de observação astronômica amadora
 - melhorar imagens e identificar objetos espaciais 
+
+compreensão do código:
+- filtros em específico
+- modelo IA
+- estrutura da interface
