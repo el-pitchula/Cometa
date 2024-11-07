@@ -1,131 +1,118 @@
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
+from tkinter import filedialog, messagebox
 from PIL import Image, ImageTk
-import cv2
 import numpy as np
+import tensorflow as tf
+from scipy import ndimage, fftpack
 
-class ImageProcessingApp:
+class AstronomicalImageApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Image Processing with AI and Filters")
-        self.root.state("zoomed")  # Abre a janela maximizada em tela cheia
+        self.root.title("Astronomical Object Detection")
         
-        # Configura o estilo
-        style = ttk.Style()
-        style.theme_use("clam")
-        style.configure("TFrame", background="#2e2e2e")
-        style.configure("TButton", background="#4e4e4e", foreground="white", font=("Helvetica", 12, "bold"))
-        style.configure("TLabel", background="#2e2e2e", foreground="white", font=("Helvetica", 12))
-        
-        # Frame principal para divisão das áreas
-        main_frame = ttk.Frame(self.root)
-        main_frame.pack(fill="both", expand=True)
-
-        # Painel esquerdo para controles e ajustes
-        control_panel = ttk.Frame(main_frame, width=250, relief="sunken", padding=10)
-        control_panel.pack(side="left", fill="y")
-        
-        # Área central para exibição das imagens
-        display_panel = ttk.Frame(main_frame, padding=10)
-        display_panel.pack(side="left", fill="both", expand=True)
-
-        # Barra de status
-        self.status_label = ttk.Label(self.root, text="Welcome to Image Processing App", anchor="w")
-        self.status_label.pack(side="bottom", fill="x")
-
-        # Controles no Painel de Controle
-        ttk.Label(control_panel, text="Image Processing Options").pack(pady=5)
-        
-        load_button = ttk.Button(control_panel, text="Load Image", command=self.load_image)
-        load_button.pack(fill="x", pady=5)
-        
-        filter_button = ttk.Button(control_panel, text="Apply Butterworth Filter", command=self.apply_butterworth_filter)
-        filter_button.pack(fill="x", pady=5)
-        
-        ai_button = ttk.Button(control_panel, text="Run AI Model", command=self.run_ai_model)
-        ai_button.pack(fill="x", pady=5)
-        
-        # Slider para ajuste de parâmetros de filtro
-        ttk.Label(control_panel, text="Filter Frequency Cutoff").pack(pady=5)
-        self.cutoff_slider = ttk.Scale(control_panel, from_=1, to=100, orient="horizontal")
-        self.cutoff_slider.set(50)
-        self.cutoff_slider.pack(fill="x", pady=5)
-
-        # Configuração de Exibição de Imagem
-        self.original_label = ttk.Label(display_panel, text="Original Image")
-        self.original_label.pack(pady=5)
-        
-        self.processed_label = ttk.Label(display_panel, text="Processed Image")
-        self.processed_label.pack(pady=5)
-
-        self.original_canvas = tk.Canvas(display_panel, width=400, height=400, bg="gray")
-        self.original_canvas.pack(side="left", fill="both", expand=True, padx=5, pady=5)
-        
-        self.processed_canvas = tk.Canvas(display_panel, width=400, height=400, bg="gray")
-        self.processed_canvas.pack(side="left", fill="both", expand=True, padx=5, pady=5)
-
-        # Inicializa as variáveis
+        # Variáveis de imagem
         self.original_image = None
-        self.processed_image = None
+        self.filtered_image = None
+        
+        # Interface gráfica
+        self.create_widgets()
+    
+    def create_widgets(self):
+        # Botões para carregar imagem, aplicar filtro e executar IA
+        self.load_button = tk.Button(self.root, text="Load Image", command=self.load_image)
+        self.load_button.pack()
+        
+        self.filter_button = tk.Button(self.root, text="Apply Butterworth Filter", command=self.apply_butterworth_filter)
+        self.filter_button.pack()
+        
+        self.ai_button = tk.Button(self.root, text="Detect Celestial Objects", command=self.run_ai_model)
+        self.ai_button.pack()
+        
+        # Canvas para imagem original e processada
+        self.original_canvas = tk.Canvas(self.root, width=300, height=300)
+        self.original_canvas.pack()
+        
+        self.processed_canvas = tk.Canvas(self.root, width=300, height=300)
+        self.processed_canvas.pack()
+        
+        # Rótulo de status
+        self.status_label = tk.Label(self.root, text="Status: Ready")
+        self.status_label.pack()
 
     def load_image(self):
-        image_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg *.png *.jpeg")])
-        if image_path:
-            self.original_image = Image.open(image_path)
-            self.display_image(self.original_image, self.original_canvas)
-            self.status_label.config(text="Image loaded successfully")
-
-    def apply_butterworth_filter(self):
-        if self.original_image is None:
-            messagebox.showerror("Error", "Please load an image first.")
-            return
-
-        # Aplica o filtro Butterworth
-        self.processed_image = self.butterworth_filter(self.original_image, cutoff=self.cutoff_slider.get())
-        self.display_image(self.processed_image, self.processed_canvas)
-        self.status_label.config(text="Butterworth filter applied")
-
-    def butterworth_filter(self, image, cutoff):
-        # Convertendo a imagem para escala de cinza
-        img_gray = np.array(image.convert("L"))
-        
-        # Transformada de Fourier
-        f_transform = np.fft.fftshift(np.fft.fft2(img_gray))
-        rows, cols = img_gray.shape
-        crow, ccol = rows // 2, cols // 2
-
-        # Filtro Butterworth
-        mask = np.zeros((rows, cols), dtype=np.float32)
-        for i in range(rows):
-            for j in range(cols):
-                d = np.sqrt((i - crow) ** 2 + (j - ccol) ** 2)
-                mask[i, j] = 1 / (1 + (d / cutoff) ** (2 * 2))
-                # if (passa-alta)
-
-        filtered_shifted = f_transform * mask
-        f_ishift = np.fft.ifftshift(filtered_shifted)
-        img_back = np.abs(np.fft.ifft2(f_ishift))
-        filtered_image = Image.fromarray(np.uint8(img_back)).convert("RGB")
-        
-        return filtered_image
-
-    def run_ai_model(self):
-        if self.original_image is None:
-            messagebox.showerror("Error", "Please load an image first.")
+        file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg;*.jpeg;*.png")])
+        if not file_path:
             return
         
-        # Placeholder para execução de modelo de IA
-        self.status_label.config(text="Running AI model...")
-        self.processed_image = self.original_image  # Substitua pela saída real do modelo de IA
-        self.display_image(self.processed_image, self.processed_canvas)
-        self.status_label.config(text="AI model executed")
+        # Carregar a imagem original
+        self.original_image = Image.open(file_path).convert("L")  # Escala de cinza
+        self.display_image(self.original_image, self.original_canvas)
+        self.status_label.config(text="Image loaded successfully")
 
     def display_image(self, image, canvas):
-        canvas.image = ImageTk.PhotoImage(image.resize((400, 400)))
-        canvas.create_image(0, 0, anchor="nw", image=canvas.image)
+        # Redimensionar imagem para caber no canvas
+        img = image.resize((300, 300))
+        img_tk = ImageTk.PhotoImage(img)
+        
+        canvas.create_image(0, 0, anchor="nw", image=img_tk)
+        canvas.image = img_tk
 
-# Cria a janela principal e inicializa a aplicação
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = ImageProcessingApp(root)
-    root.mainloop()
+    def apply_butterworth_filter(self, cutoff=0.1, order=2):
+        if self.original_image is None:
+            messagebox.showerror("Error", "Please load an image first.")
+            return
+        
+        # Converte a imagem em array para aplicar o filtro Butterworth
+        img_array = np.array(self.original_image)
+        
+        # Calcula a transformada de Fourier da imagem
+        f_transform = fftpack.fftshift(fftpack.fft2(img_array))
+        
+        # Cria o filtro Butterworth
+        rows, cols = img_array.shape
+        crow, ccol = rows // 2 , cols // 2
+        u = np.arange(-crow, crow)
+        v = np.arange(-ccol, ccol)
+        U, V = np.meshgrid(u, v)
+        D = np.sqrt(U**2 + V**2)
+        
+        # Define o filtro Butterworth
+        butterworth_filter = 1 / (1 + (D / (cutoff * crow))**(2 * order))
+        
+        # Aplica o filtro Butterworth na imagem
+        f_transform_filtered = f_transform * butterworth_filter
+        img_filtered = fftpack.ifft2(fftpack.ifftshift(f_transform_filtered))
+        img_filtered = np.abs(img_filtered)
+        
+        # Converte o resultado em uma imagem do PIL para exibição
+        self.filtered_image = Image.fromarray(img_filtered).convert("L")
+        self.display_image(self.filtered_image, self.processed_canvas)
+        self.status_label.config(text="Butterworth filter applied")
+
+    def run_ai_model(self):
+        if self.filtered_image is None:
+            messagebox.showerror("Error", "Please apply a filter to the image first.")
+            return
+
+        # Pré-processamento da imagem filtrada para o modelo
+        img = self.filtered_image.resize((224, 224))  # Ajuste ao tamanho esperado pelo modelo
+        img_array = np.array(img) / 255.0  # Normalização
+        img_array = np.expand_dims(img_array, axis=-1)  # Canal único
+        img_array = np.expand_dims(img_array, axis=0)  # Dimensão de batch
+
+        # Carregar o modelo customizado para detecção astronômica
+        self.status_label.config(text="Loading AI model for astronomical detection...")
+        model = tf.keras.models.load_model("path_to_your_trained_model.h5")
+
+        # Executa a detecção
+        self.status_label.config(text="Detecting celestial objects...")
+        prediction = model.predict(img_array)
+        label = "Object Detected" if prediction[0][0] > 0.5 else "No Object Detected"
+
+        # Atualiza o status com o resultado da IA
+        self.status_label.config(text=f"AI model result: {label}")
+
+# Inicializa a aplicação
+root = tk.Tk()
+app = AstronomicalImageApp(root)
+root.mainloop()
