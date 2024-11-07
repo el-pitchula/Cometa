@@ -100,6 +100,7 @@ class ImageProcessingApp:
             for j in range(cols):
                 d = np.sqrt((i - crow) ** 2 + (j - ccol) ** 2)
                 mask[i, j] = 1 / (1 + (d / cutoff) ** (2 * 2))
+                # if (passa-alta)
 
         filtered_shifted = f_transform * mask
         f_ishift = np.fft.ifftshift(filtered_shifted)
