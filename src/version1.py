@@ -106,9 +106,9 @@ class ImageProcessingApp:
             for j in range(cols):
                 d = np.sqrt((i - crow) ** 2 + (j - ccol) ** 2)
                 if filter_type == 'low':
-                    mask[i, j] = 1 / (1 + (d / cutoff) ** (2 * 2)) #n=2 (segunda ordem)
+                    mask[i, j] = 1 / (1 + (d / cutoff) ** (2 * 1)) # n=1 (1° ordem)
                 elif filter_type == 'high':
-                    mask[i, j] = 1 / (1 + (cutoff / d) ** (2 * 2))
+                    mask[i, j] = 1 / (1 + (cutoff / d) ** (2 * 1))
 
         # Aplicando o filtro
         filtered_shifted = f_transform * mask
