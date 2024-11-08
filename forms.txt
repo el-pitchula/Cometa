@@ -1,0 +1,14 @@
+1/rad(1(f/fc)^2*n) - passa-baixa
+1/rad(1(fc/f)^2*n) - passa-alta
+
+-((s^2)k)/fc^2=H(jw)=R(s)/U(s)
+
+n=ood: n-1/2*(cos)
+n=even: n/2*(cos)
+
+H(jw)=sigma+jw
+
+n = 2 (segunda ordem do filtro)
+d = np.sqrt((i - crow) ** 2 + (j - ccol) ** 2)
+crow = 
+ccol = 
