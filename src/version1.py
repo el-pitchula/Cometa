@@ -132,7 +132,7 @@ class ImageProcessingApp:
     def display_image(self, image, canvas):
         canvas.image = ImageTk.PhotoImage(image.resize((400, 400)))
         canvas.create_image(0, 0, anchor="nw", image=canvas.image)
-
+                          
 # Cria a janela principal e inicializa a aplicação
 if __name__ == "__main__":
     root = tk.Tk()
