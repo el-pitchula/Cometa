@@ -2,6 +2,7 @@
 - pesquisar como as bibliotecas de filtro foram feitas para ref
 - preciso me embasar na teoria matematica e sobre o funcionamento em ML
 - v videos sobre IA e principalmente os antigos do universo programado
+- fazer fluxograma
 
 
 - fazer def mat
