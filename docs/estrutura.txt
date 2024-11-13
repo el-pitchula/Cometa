@@ -1,0 +1,11 @@
+1. Conceitos Básicos de IA e Processamento de Imagem
+- Introdução a IA e Aprendizado de Máquina
+- Processamento de Imagens com Python
+2. Melhorando a Qualidade de Imagens Astronômicas
+- Técnicas Básicas de Processamento de Imagem
+3. IA para Detecção de Corpos Celestes
+4. Implementação com Python para um Executável
+5. Estrutura do Projeto
+- Pré-processamento de imagem
+- Detecção de objetos com IA
+- Exibir e salvar resultados
