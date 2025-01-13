@@ -3,6 +3,8 @@ Is a Python-based application that utilizes advanced mathematical filters and ar
 
 ## Interface
 
+![Descrição da imagem](img/jup.png)
+
 ## How to use:
 - pip install -r requirements.txt
 - python src/inteacrfe.py
