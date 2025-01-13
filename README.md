@@ -4,7 +4,7 @@ Is a Python-based application that utilizes advanced mathematical filters and ar
 ## Interface
 
 ![Descrição](jup.png)
-![](jup.png)
+![](tyki.png)
 
 
 ## How to use:
