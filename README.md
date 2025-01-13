@@ -5,7 +5,7 @@ Is a Python-based application that utilizes advanced mathematical filters and ar
 
 ![Descrição](jup.png)
 ![](tyki.png)
-<img src="tyki.png" alt="Minha imagem" width="200"/>
+<img src="tyki.png" alt="Minha imagem" width="50"/>
 
 
 ## How to use:
