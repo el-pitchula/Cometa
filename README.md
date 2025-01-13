@@ -3,9 +3,9 @@ Is a Python-based application that utilizes advanced mathematical filters and ar
 
 ## Interface
 
-![Descrição](jup.png)
+![Descrição](img/jup.png)
 ![](tyki.png)
-<img src="tyki.png" alt="Minha imagem" width="400"/>
+<img src="img/tyki.png" alt="Minha imagem" width="400"/>
 
 
 ## How to use:
