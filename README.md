@@ -10,6 +10,6 @@ Is a Python-based application that utilizes advanced mathematical filters and ar
 
 ## How to use:
 - pip install -r requirements.txt
-- python src/inteacrfe.py
+- python src/interface.py
 
 add fts, gifs, e explicações em documents .md alem da própria monografia
