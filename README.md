@@ -3,8 +3,7 @@ Is a Python-based application that utilizes advanced mathematical filters and ar
 
 ## Interface
 
-![Descrição](img/jup.png)
-![](tyki.png)
+![Descrição](jup.png)
 <img src="img/tyki.png" alt="Minha imagem" width="400"/>
 
 
